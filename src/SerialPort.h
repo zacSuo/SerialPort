@@ -22,7 +22,7 @@ public:
 	bool isOpen();
 	int GetFileDescriptor();
 	int Send(string strOutMsg);
-	void Recv(void);
+	string Recv(void);
 
 private:
 	int OpenDevice(string strDevice);

@@ -14,8 +14,8 @@ SerialPort::SerialPort(string strDevice)
     struct termios options;
     tcgetattr(this->nFd, &options);
 
-    cfsetispeed(&options, B115200);
-    cfsetospeed(&options, B115200);
+    cfsetispeed(&options, BAUDRATE);
+    cfsetospeed(&options, BAUDRATE);
     options.c_cflag |= (CLOCAL | CREAD);
     options.c_cflag &= ~PARENB;
     options.c_cflag &= ~CSTOPB;
@@ -66,26 +66,35 @@ int SerialPort::GetFileDescriptor()
 	return this->nFd;
 }
 
-int SerialPort::Send(string strOutMsg){
+int SerialPort::Send(string strOutMsg)
+{
 	int nCount = write(this->nFd, strOutMsg.c_str(), strOutMsg.length());
 	return nCount;
-	
-	//printf("\nSend %d of %ld: %s\n", nCount, strOutMsg.length(), strOutMsg.c_str());
 }
 
-void SerialPort::Recv(void)
+string SerialPort::Recv(void)
 {
-	int nread;
-	char * msg = new char[512];
-	string strRxBuf = "";
+	char* strRxBuf = new char[16];
+	//string strRxBuf(12,'\0');
+	//cout << "strRxBuf.capacity()=" << strRxBuf.capacity() << endl;
+	string strRxFullMsg = "";
 		
 	do{
-		nread = read(this->nFd,msg,2);
-		if(0 >= nread)break;
+		int nRead = read(this->nFd, strRxBuf, 16);
+		if(0 >= nRead)break;
+		strRxFullMsg.append(strRxBuf);
+		memset(strRxBuf, '\0', 16);
+		//strRxFullMsg += strRxBuf;
 		
-		strRxBuf.append(msg);
-		memset(msg,0,512);//清空
-	}while(0 < nread);
-	
-	cout << strRxBuf << endl;
+		/*
+		cout << "strRxBuf.capacity()=" << strRxBuf.capacity() << endl;
+		cout << strRxBuf << endl;
+		//strRxBuf.clear();
+		strRxBuf.replace(strRxBuf.begin(), strRxBuf.end(), "\0");
+		cout << "strRxBuf.capacity()=" << strRxBuf.capacity() << endl;
+		cout << strRxBuf << endl;
+		*/
+	}while(true);
+
+	return strRxFullMsg;
 }
