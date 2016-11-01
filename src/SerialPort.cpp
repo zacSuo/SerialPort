@@ -1,20 +1,21 @@
 #include "SerialPort.h"
 #include <iostream>
 #include <string.h>
+#include <unistd.h>
 using namespace std;
 
 SerialPort::SerialPort(string strDevice)
 {
 	this->nFd = OpenDevice(strDevice);
 	if(-1 == this->nFd)	return;
-
-	fcntl(this->nFd, F_SETFL, 0);
+	
+	fcntl(this->nFd, F_SETFL, O_NONBLOCK);  // 設定為非阻塞（non-blocking）
 
     struct termios options;
     tcgetattr(this->nFd, &options);
 
-    cfsetispeed(&options, B19200);
-    cfsetospeed(&options, B19200);
+    cfsetispeed(&options, B115200);
+    cfsetospeed(&options, B115200);
     options.c_cflag |= (CLOCAL | CREAD);
     options.c_cflag &= ~PARENB;
     options.c_cflag &= ~CSTOPB;
@@ -79,7 +80,7 @@ void SerialPort::Recv(void)
 	string strRxBuf = "";
 		
 	do{
-		nread = read(this->nFd,msg,512);
+		nread = read(this->nFd,msg,2);
 		if(0 >= nread)break;
 		
 		strRxBuf.append(msg);
