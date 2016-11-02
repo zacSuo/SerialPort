@@ -67,23 +67,33 @@ int SerialPort::GetFileDescriptor()
 	return this->nFd;
 }
 
+//寫入字串資訊
 int SerialPort::Send(string strOutMsg)
-{//寫入資訊
+{
 	int nCount = write(this->nFd, strOutMsg.c_str(), strOutMsg.length());
+	return nCount;
+}
+
+//寫入二進位資訊，所以必須自己給長度。
+int SerialPort::Send(unsigned char* strOutMsg, size_t nbyte)
+{
+	int nCount = write(this->nFd, strOutMsg, nbyte);
 	return nCount;
 }
 
 string SerialPort::Recv(void)
 {//接收資訊
 	const static size_t rxBufferSize = 12;
-	char strRxBuf[rxBufferSize];
+	unsigned char strRxBuf[rxBufferSize];
 	string strRxFullMsg = "";
-		
+
 	do{
 		memset(strRxBuf, 0, rxBufferSize); //清空緩衝
 		int nRead = read(this->nFd, strRxBuf, rxBufferSize); //接收資料
-		if(0 >= nRead)break;
-		strRxFullMsg.append(strRxBuf);
+		if(-1 == nRead)break;
+
+		char* temp = (char*)strRxBuf;
+		strRxFullMsg.append(temp);
 	}while(true);//要設定time out
 
 	return strRxFullMsg;

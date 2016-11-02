@@ -12,19 +12,21 @@
 #include	 <string>
 using namespace std;
 
-#define BAUDRATE B115200 //Baud rate : 19200
+#define BAUDRATE B19200 //Baud rate : 19200
 
 class SerialPort {
 public:
-	SerialPort(string strDevice);
+	SerialPort(string);
 	virtual ~SerialPort();
 	bool isOpen();
-	int GetFileDescriptor();
-	int Send(string strOutMsg);
+	
+	int Send(string);
+	int Send(unsigned char*, size_t);
 	string Recv(void);
 
 private:
-	int OpenDevice(string strDevice);
+	int GetFileDescriptor();
+	int OpenDevice(string);
 	int nFd;
 };
 
