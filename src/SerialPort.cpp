@@ -75,24 +75,16 @@ int SerialPort::Send(string strOutMsg)
 
 string SerialPort::Recv(void)
 {//接收資訊
-	const static size_t rxBufferSize = 28;
-	char* strRxBuf = (char*)malloc(rxBufferSize);
-	//string strRxBuf(12,'\0');
-	//cout << "strRxBuf.capacity()=" << strRxBuf.capacity() << endl;
+	const static size_t rxBufferSize = 12;
+	char strRxBuf[rxBufferSize];
 	string strRxFullMsg = "";
 		
 	do{
+		memset(strRxBuf, 0, rxBufferSize); //清空緩衝
 		int nRead = read(this->nFd, strRxBuf, rxBufferSize); //接收資料
 		if(0 >= nRead)break;
+		strRxFullMsg.append(strRxBuf);
+	}while(true);//要設定time out
 
-		strRxFullMsg.append(string(strRxBuf).substr(0,rxBufferSize)); //在尾端加入新的封包
-		//這裡不可直接加上接收用字串，因為在read()會收到超過size_t的完整字串
-		//strRxFullMsg.append(strRxBuf); 會出錯
-		//所以要用substr限制每次新加入的字串長度
-		
-		memset(strRxBuf, 0, rxBufferSize); //清空緩衝
-	}while(true);
-
-	free(strRxBuf);
 	return strRxFullMsg;
 }
