@@ -12,8 +12,7 @@
 #include	 <string>
 using namespace std;
 
-#define BAUDRATE B19200 //Baud rate : 19200
-#define SIZE 1024
+#define BAUDRATE B115200 //Baud rate : 19200
 
 class SerialPort {
 public:

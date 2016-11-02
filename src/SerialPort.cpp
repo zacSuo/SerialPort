@@ -29,12 +29,13 @@ SerialPort::SerialPort(string strDevice)
 }
 
 bool SerialPort::isOpen()
-{
+{//檢查port是否已經開啟
 	return (-1 == this->nFd) ? false : true;
 }
 
 SerialPort::~SerialPort() {
 	// TODO Auto-generated destructor stub
+	//應該有些什麼東西要手動free掉？ 目前看起來沒有
 }
 
 int SerialPort::OpenDevice(string strDevice)
@@ -62,39 +63,36 @@ int SerialPort::OpenDevice(string strDevice)
 }
 
 int SerialPort::GetFileDescriptor()
-{
+{//暫時開放，其實物件導向以後，這個資訊不應該public。不然等於是破壞terminal操作封裝性
 	return this->nFd;
 }
 
 int SerialPort::Send(string strOutMsg)
-{
+{//寫入資訊
 	int nCount = write(this->nFd, strOutMsg.c_str(), strOutMsg.length());
 	return nCount;
 }
 
 string SerialPort::Recv(void)
-{
-	char* strRxBuf = new char[16];
+{//接收資訊
+	const static size_t rxBufferSize = 28;
+	char* strRxBuf = (char*)malloc(rxBufferSize);
 	//string strRxBuf(12,'\0');
 	//cout << "strRxBuf.capacity()=" << strRxBuf.capacity() << endl;
 	string strRxFullMsg = "";
 		
 	do{
-		int nRead = read(this->nFd, strRxBuf, 16);
+		int nRead = read(this->nFd, strRxBuf, rxBufferSize); //接收資料
 		if(0 >= nRead)break;
-		strRxFullMsg.append(strRxBuf);
-		memset(strRxBuf, '\0', 16);
-		//strRxFullMsg += strRxBuf;
+
+		strRxFullMsg.append(string(strRxBuf).substr(0,rxBufferSize)); //在尾端加入新的封包
+		//這裡不可直接加上接收用字串，因為在read()會收到超過size_t的完整字串
+		//strRxFullMsg.append(strRxBuf); 會出錯
+		//所以要用substr限制每次新加入的字串長度
 		
-		/*
-		cout << "strRxBuf.capacity()=" << strRxBuf.capacity() << endl;
-		cout << strRxBuf << endl;
-		//strRxBuf.clear();
-		strRxBuf.replace(strRxBuf.begin(), strRxBuf.end(), "\0");
-		cout << "strRxBuf.capacity()=" << strRxBuf.capacity() << endl;
-		cout << strRxBuf << endl;
-		*/
+		memset(strRxBuf, 0, rxBufferSize); //清空緩衝
 	}while(true);
 
+	free(strRxBuf);
 	return strRxFullMsg;
 }
