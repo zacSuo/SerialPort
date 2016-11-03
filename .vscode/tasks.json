@@ -10,7 +10,6 @@
         {
             "taskName": "build",
             "args": ["g++ src/main.cpp src/SerialPort.cpp -Wall -g -std=c++11 -o SerialPortTest"],
-            //"args": ["gcc UART.c -Wall -g -o UART_C"],
             "isBuildCommand": true
         }
     ]

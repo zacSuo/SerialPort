@@ -14,18 +14,35 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-	argc = 2 ; argv[1] = (char*)"ttyUSB0"; //dummy input
 	string strModemDevice = "/dev/";
-	if(NULL == argv[1])
+	while(NULL == argv[1])
 	{
+		char cInput;
 		cout << "欠缺參數(ttyS0 或 ttyUSB0 之類的)" << endl;
-		return 0;//跳出程式
+		cout << "要幫懶惰的你補上\"ttyUSB0\"嗎？" << endl;
+		cout << "[Y/n] "; cin >> cInput;
+
+		if(toupper(cInput) == 'N')
+		{
+			cout << "結束程式" << endl;
+			return 0;//跳出程式
+		}
+		else if(toupper(cInput) == 'Y')
+		{
+			argc = 2 ; argv[1] = (char*)"ttyUSB0"; //dummy input
+			break;
+		}
+		system("clear");
 	}
 
 	strModemDevice.append(argv[1]); //在string後面加上一個char*字串
 	cout << "strModemDevice = " << strModemDevice << endl;//顯示總字串
 
-	system("sudo chmod 666 /dev/ttyUSB0");
+	//權限取得
+	string strPermissionGetCommand = "sudo chmod 666 " + strModemDevice;
+	system(strPermissionGetCommand.c_str());
+
+	//建立物件
 	SerialPort* serialPort = new SerialPort(strModemDevice);
 
 	if(serialPort->isOpen())
