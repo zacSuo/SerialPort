@@ -84,16 +84,14 @@ int SerialPort::Send(unsigned char* strOutMsg, size_t nbyte)
 string SerialPort::Recv(void)
 {//接收資訊
 	const static size_t rxBufferSize = 12;
-	unsigned char strRxBuf[rxBufferSize];
+	unsigned char strRxBuf[rxBufferSize]; //接收要用unsigned
 	string strRxFullMsg = "";
 
 	do{
 		memset(strRxBuf, 0, rxBufferSize); //清空緩衝
 		int nRead = read(this->nFd, strRxBuf, rxBufferSize); //接收資料
 		if(-1 == nRead)break;
-
-		char* temp = (char*)strRxBuf;
-		strRxFullMsg.append(temp);
+		strRxFullMsg.append((char*)strRxBuf, nRead);//加入字串才用signed
 	}while(true);//要設定time out
 
 	return strRxFullMsg;
