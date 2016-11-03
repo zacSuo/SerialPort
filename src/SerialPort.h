@@ -19,6 +19,7 @@ public:
 	SerialPort(string);
 	virtual ~SerialPort();
 	bool isOpen();
+	void Close();
 	
 	int Send(string);
 	int Send(unsigned char*, size_t);

@@ -8,22 +8,50 @@
 
 #include <iostream>
 #include <string>
+#include <unistd.h> //For usleep()
 #include "SerialPort.h"
 using namespace std;
 
-int  main()
+int main(int argc, char *argv[])
 {
-	string strMsg = "!!!Hello World!!!";
-	
-	SerialPort* ptrSP = new SerialPort("/dev/ttyUSB0");
-
-	if(ptrSP->isOpen())
+	argc = 2 ; argv[1] = (char*)"ttyUSB0"; //dummy input
+	string strModemDevice = "/dev/";
+	if(NULL == argv[1])
 	{
+		cout << "欠缺參數(ttyS0 或 ttyUSB0 之類的)" << endl;
+		return 0;//跳出程式
+	}
 
+	strModemDevice.append(argv[1]); //在string後面加上一個char*字串
+	cout << "strModemDevice = " << strModemDevice << endl;//顯示總字串
+
+	system("sudo chmod 666 /dev/ttyUSB0");
+	SerialPort* serialPort = new SerialPort(strModemDevice);
+
+	if(serialPort->isOpen())
+	{//開檔成功
+		cout << "Pass!" << endl;
+		
+		//把 Hex String 轉換到 Byte Array
+		string strSendMsg = "HelloWorld!";
+		
+		//送出 Byte Array 資料
+		cout << "strSendMsg = " << strSendMsg << endl;
+		cout << "send return = " << serialPort->Send(strSendMsg) << endl;
+		
+		//設定延遲時間，太短會來不及把資料送完。
+		int mSec = 500;
+		usleep(mSec*1000);
+
+		//接收字串
+		string strRx = serialPort->Recv();
+		cout << "Serial Port Receive  : " << strRx << endl;
 	}
 	else
-	{
-
+	{//開檔失敗
+		cout << "Fail!" << endl; 
 	}
 
+	serialPort->Close();
+	delete(serialPort);
 }

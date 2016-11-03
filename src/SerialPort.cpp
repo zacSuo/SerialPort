@@ -33,6 +33,11 @@ bool SerialPort::isOpen()
 	return (-1 == this->nFd) ? false : true;
 }
 
+void SerialPort::Close()
+{
+	 close(this->nFd);
+}
+
 SerialPort::~SerialPort() {
 	// TODO Auto-generated destructor stub
 	//應該有些什麼東西要手動free掉？ 目前看起來沒有
@@ -63,7 +68,7 @@ int SerialPort::OpenDevice(string strDevice)
 }
 
 int SerialPort::GetFileDescriptor()
-{//暫時開放，其實物件導向以後，這個資訊不應該public。不然等於是破壞terminal操作封裝性
+{//暫時開放，其實物件導向以後，這個資訊不應該public。不然等於是破壞port操作封裝性
 	return this->nFd;
 }
 
