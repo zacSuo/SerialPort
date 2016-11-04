@@ -14,6 +14,8 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
+	argc = 2 ; argv[1] = (char*)"ttyUSB0"; //dummy input
+
 	string strModemDevice = "/dev/";
 	while(NULL == argv[1])
 	{
@@ -35,6 +37,7 @@ int main(int argc, char *argv[])
 		system("clear");
 	}
 
+	cout << "argv[1]: " << argv[1] << endl; 
 	strModemDevice.append(argv[1]); //在string後面加上一個char*字串
 	cout << "strModemDevice = " << strModemDevice << endl;//顯示總字串
 
@@ -43,7 +46,7 @@ int main(int argc, char *argv[])
 	system(strPermissionGetCommand.c_str());
 
 	//建立物件
-	SerialPort* serialPort = new SerialPort(strModemDevice);
+	SerialPort* serialPort = new SerialPort(strModemDevice, SerialPort::BR115200);
 
 	if(serialPort->isOpen())
 	{//開檔成功

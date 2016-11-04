@@ -12,11 +12,11 @@
 #include	 <string>
 using namespace std;
 
-#define BAUDRATE B19200 //Baud rate : 19200
+typedef int BaudRate;
 
 class SerialPort {
 public:
-	SerialPort(string);
+	SerialPort(const string portName, BaudRate baudRate);
 	virtual ~SerialPort();
 	bool isOpen();
 	void Close();
@@ -24,6 +24,11 @@ public:
 	int Send(string);
 	int Send(unsigned char*, size_t);
 	string Recv(void);
+
+	static const BaudRate BR115200 = 0010002;
+	static const BaudRate  BR19200 = 0000016;
+	static const BaudRate   BR9600 = 0000015;
+
 
 private:
 	int GetFileDescriptor();

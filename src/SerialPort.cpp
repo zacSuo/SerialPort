@@ -4,9 +4,10 @@
 #include <unistd.h>
 using namespace std;
 
-SerialPort::SerialPort(string strDevice)
+SerialPort::SerialPort(const string portName, int baudRate)
 {
-	this->nFd = OpenDevice(strDevice);
+	cout << "baudRate = " << baudRate << endl;
+	this->nFd = OpenDevice(portName);
 	if(-1 == this->nFd)	return;
 	
 	fcntl(this->nFd, F_SETFL, O_NONBLOCK);  // 設定為非阻塞（non-blocking）
@@ -14,8 +15,8 @@ SerialPort::SerialPort(string strDevice)
     struct termios options;
     tcgetattr(this->nFd, &options);
 
-    cfsetispeed(&options, BAUDRATE);
-    cfsetospeed(&options, BAUDRATE);
+    cfsetispeed(&options, baudRate);
+    cfsetospeed(&options, baudRate);
     options.c_cflag |= (CLOCAL | CREAD);
     options.c_cflag &= ~PARENB;
     options.c_cflag &= ~CSTOPB;
