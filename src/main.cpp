@@ -12,29 +12,9 @@
 #include "SerialPort.h"
 using namespace std;
 
-constexpr int* _ptr0 = new int(0);
-constexpr int* _ptr1 = new int(1);
-constexpr int* _ptr2 = new int(2);
-
-void SwitchByPtr(int* _ptr)
-{
-	printf("*_ptr0=%d, *_ptr1=%d, *_ptr2=%d\n", *_ptr0, *_ptr1, *_ptr2);
-	printf("_ptr0=%p, _ptr1=%p, _ptr2=%p\n", _ptr0, _ptr1, _ptr2);
-
-	switch(_ptr)
-	{
-		case _ptr0: cout << "_ptr0" << endl; break;
-		case _ptr0: cout << "_ptr0" << endl; break;
-		case _ptr0: cout << "_ptr0" << endl; break;
-		default:  cout << "default" << endl; break;
-	}
-}
 
 int main(int argc, char *argv[])
 {
-	SwitchByPtr(_ptr1);
-
-
 	argc = 2 ; argv[1] = (char*)"ttyUSB0"; //dummy input
 
 	string strModemDevice = "/dev/";
@@ -79,10 +59,6 @@ int main(int argc, char *argv[])
 		//送出 Byte Array 資料
 		cout << "strSendMsg = " << strSendMsg << endl;
 		cout << "send return = " << serialPort->Send(strSendMsg) << endl;
-		
-		//設定延遲時間，太短會來不及把資料送完。
-		int mSec = 500;
-		usleep(mSec*1000);
 
 		//接收字串
 		string strRx = serialPort->Recv();
