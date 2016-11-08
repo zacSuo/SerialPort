@@ -3,13 +3,13 @@
 
 #include     <stdio.h> 
 #include     <stdlib.h> 
-#include     <unistd.h>  
 #include     <sys/types.h>
 #include     <sys/stat.h>
 #include     <fcntl.h> 
 #include     <termios.h> 
 #include     <errno.h>
 #include	 <string>
+
 using namespace std;
 
 typedef int BaudRate;
@@ -29,9 +29,9 @@ public:
 	static const BaudRate  BR19200 = 0000016;
 	static const BaudRate   BR9600 = 0000015;
 
-
-private:
 	int GetFileDescriptor();
+private:
+	
 	int OpenDevice(string);
 	int nFd;
 };

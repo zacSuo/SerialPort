@@ -1,32 +1,39 @@
 #include "SerialPort.h"
 #include <iostream>
 #include <string.h>
-#include <unistd.h>
+#include <unistd.h>  
+//#include <unistd.h> //For usleep()
 using namespace std;
 
 SerialPort::SerialPort(const string portName, int baudRate)
 {
-	cout << "baudRate = " << baudRate << endl;
-	this->nFd = OpenDevice(portName);
-	if(-1 == this->nFd)	return;
+	printf("baudRate code = %d\n", baudRate);
+	//this->nFd = OpenDevice(portName);
+	this->nFd = open(portName.c_str(), O_RDWR|O_NOCTTY|O_NDELAY );
+	if(-1 == this->nFd)
+	{
+		this->nFd = -1;
+	}
+
+	struct termios options = { 0 };   //宣告一個設定 comport 所需要的結構體 並且清空內部
 	
-	fcntl(this->nFd, F_SETFL, O_NONBLOCK);  // 設定為非阻塞（non-blocking）
+	/* c_cflag 控制模式：
+	 * CLOCAL:忽略任何modem status lines
+	 * CREAD:啟動字元接收
+	 * CS8:傳送或接收時，使用八個位元
+	 */
+	options.c_cflag = (baudRate | CLOCAL | CREAD | CS8); //依序,設定 baud rate,不改變 comport 擁有者, 接收致能, 8 data bits
 
-    struct termios options;
-    tcgetattr(this->nFd, &options);
+	cfsetispeed( &options , baudRate );
+	cfsetospeed( &options , baudRate );
 
-    cfsetispeed(&options, baudRate);
-    cfsetospeed(&options, baudRate);
-    options.c_cflag |= (CLOCAL | CREAD);
-    options.c_cflag &= ~PARENB;
-    options.c_cflag &= ~CSTOPB;
-    options.c_cflag &= ~CSIZE;
-    options.c_cflag |= CS8;
-    options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
-    options.c_iflag &= ~(IXON | IXOFF | IXANY);
-    options.c_oflag &= ~OPOST;
+	options.c_cc[ VTIME ] = 1;	//10 = 1秒,定義等待的時間，單位是百毫秒
+	options.c_cc[ VMIN ] = 0;	//定義了要求等待的最小字節數,這個基本上給 0
+	tcflush(this->nFd , TCIOFLUSH );	// 刷新和立刻寫進去fd
 
-    tcsetattr(this->nFd, TCSANOW, &options);
+	if ( (tcsetattr( this->nFd , TCSANOW , &options )) == -1 ) { //寫回本機設備,TCSANOW >> 立刻改變數值
+		this->nFd = -1;
+	}
 }
 
 bool SerialPort::isOpen()
@@ -50,18 +57,6 @@ int SerialPort::OpenDevice(string strDevice)
 	if (-1 == fd)
 	{
 		perror("Can't Open Serial Port");
-		return -1;
-	}
-
-	if( (fcntl(fd, F_SETFL, 0)) < 0 )
-	{
-		perror("Fcntl F_SETFL Error!\n");
-		return -1;
-	}
-
-	if(isatty(STDIN_FILENO)==0)
-	{
-		printf("standard input is not a terminal device\n");
 		return -1;
 	}
 
@@ -92,13 +87,37 @@ string SerialPort::Recv(void)
 	const static size_t rxBufferSize = 12;
 	unsigned char strRxBuf[rxBufferSize]; //接收要用unsigned
 	string strRxFullMsg = "";
+	int nullRecvCounter=0;
+	int nullFirstRecvCounter=0;
+
+	//開始計時
+	time_t now_t = time( NULL );
 
 	do{
 		memset(strRxBuf, 0, rxBufferSize); //清空緩衝
 		int nRead = read(this->nFd, strRxBuf, rxBufferSize); //接收資料
-		if(-1 == nRead)break;
-		strRxFullMsg.append((char*)strRxBuf, nRead);//加入字串才用signed
-	}while(true);//要設定time out
+		usleep(1000);
+		//cout << "nRead= " << nRead << endl;
+		if(0 >= nRead && !strRxFullMsg.empty())
+		{//如果這一次沒有收到東西，且從未收過資料
+			nullRecvCounter++;
+			//printf("nullRecvCounter = %d\n",nullRecvCounter);
+
+			if(nullRecvCounter>10)break;
+		}
+		else if(0 < nRead)
+		{//如果有收到東西
+			cout << "經過時間:"<<(time( NULL ) - now_t)<<endl;
+			nullRecvCounter=0;
+			strRxFullMsg.append((char*)strRxBuf, nRead);//加入字串才用signed
+		}
+		else
+		{
+			nullFirstRecvCounter++;
+			//printf("nullFirstRecvCounter = %d\n",nullFirstRecvCounter);
+		}
+
+	}while(nullFirstRecvCounter+nullRecvCounter < 1000);//設定time out為1000mSec
 
 	return strRxFullMsg;
 }

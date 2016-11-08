@@ -12,8 +12,29 @@
 #include "SerialPort.h"
 using namespace std;
 
+constexpr int* _ptr0 = new int(0);
+constexpr int* _ptr1 = new int(1);
+constexpr int* _ptr2 = new int(2);
+
+void SwitchByPtr(int* _ptr)
+{
+	printf("*_ptr0=%d, *_ptr1=%d, *_ptr2=%d\n", *_ptr0, *_ptr1, *_ptr2);
+	printf("_ptr0=%p, _ptr1=%p, _ptr2=%p\n", _ptr0, _ptr1, _ptr2);
+
+	switch(_ptr)
+	{
+		case _ptr0: cout << "_ptr0" << endl; break;
+		case _ptr0: cout << "_ptr0" << endl; break;
+		case _ptr0: cout << "_ptr0" << endl; break;
+		default:  cout << "default" << endl; break;
+	}
+}
+
 int main(int argc, char *argv[])
 {
+	SwitchByPtr(_ptr1);
+
+
 	argc = 2 ; argv[1] = (char*)"ttyUSB0"; //dummy input
 
 	string strModemDevice = "/dev/";
@@ -31,7 +52,7 @@ int main(int argc, char *argv[])
 		}
 		else if(toupper(cInput) == 'Y')
 		{
-			argc = 2 ; argv[1] = (char*)"ttyUSB0"; //dummy input
+			argc = 2; argv[1] = (char*)"ttyUSB0"; //dummy input
 			break;
 		}
 		system("clear");
