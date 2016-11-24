@@ -1,4 +1,4 @@
-#include "SerialPort.h"
+#include "SerialPort.hpp"
 #include <iostream>
 #include <string.h>
 #include <unistd.h>  
@@ -31,7 +31,8 @@ SerialPort::SerialPort(const string portName, int baudRate)
 	options.c_cc[ VMIN ] = 0;	//定義了要求等待的最小字節數,這個基本上給 0
 	tcflush(this->nFd , TCIOFLUSH );	// 刷新和立刻寫進去fd
 
-	if ( (tcsetattr( this->nFd , TCSANOW , &options )) == -1 ) { //寫回本機設備,TCSANOW >> 立刻改變數值
+	if ( (tcsetattr( this->nFd , TCSANOW , &options )) == -1 )
+	{ //寫回本機設備,TCSANOW >> 立刻改變數值
 		this->nFd = -1;
 	}
 }
@@ -90,9 +91,6 @@ string SerialPort::Recv(void)
 	int nullRecvCounter=0;
 	int nullFirstRecvCounter=0;
 
-	//開始計時
-	time_t now_t = time( NULL );
-
 	do{
 		memset(strRxBuf, 0, rxBufferSize); //清空緩衝
 		int nRead = read(this->nFd, strRxBuf, rxBufferSize); //接收資料
@@ -102,13 +100,11 @@ string SerialPort::Recv(void)
 		{//如果這一次沒有收到東西，且從未收過資料
 			nullRecvCounter++;
 			//printf("nullRecvCounter = %d\n",nullRecvCounter);
-
 			if(nullRecvCounter>10)break;
 		}
 		else if(0 < nRead)
 		{//如果有收到東西
-			cout << "經過時間:"<<(time( NULL ) - now_t)<<endl;
-			nullRecvCounter=0;
+			nullRecvCounter=0;//計數歸0
 			strRxFullMsg.append((char*)strRxBuf, nRead);//加入字串才用signed
 		}
 		else

@@ -1,5 +1,5 @@
-#ifndef SERIALPORT_H_
-#define SERIALPORT_H_
+#ifndef _SERIALPORT_H_
+#define _SERIALPORT_H_
 
 #include     <stdio.h> 
 #include     <stdlib.h> 

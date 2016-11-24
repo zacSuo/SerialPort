@@ -9,9 +9,8 @@
 #include <iostream>
 #include <string>
 #include <unistd.h> //For usleep()
-#include "SerialPort.h"
+#include "SerialPort.hpp"
 using namespace std;
-
 
 int main(int argc, char *argv[])
 {
