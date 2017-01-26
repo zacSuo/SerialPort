@@ -1,0 +1,14 @@
+{
+     //"command": "g++",
+    "command": "clang++",
+    "isShellCommand": true,
+    "showOutput": "always",
+    "args": [
+            "src/main.cpp",
+            "src/SerialPort.cpp",
+            "-Wall",
+            "-g",
+            "-std=c++11",
+            "-o",
+            "SerialPortTest"]
+}
